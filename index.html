@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Five Persönlichkeitstest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .card-transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-lg p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Big Five Fragebogen
+            </h1>
+            <div class="text-sm opacity-90">Basierend auf deinem PDF (102 Fragen)</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 max-w-3xl">
+        
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="bg-white rounded-xl shadow-md p-8 mt-8 text-center">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-4">Persönlichkeitsanalyse</h2>
+            <p class="text-gray-600 mb-6 text-lg">
+                Dieser Test bewertet deine Persönlichkeit anhand der "Big Five" Dimensionen. Es sind **102 Fragen** zu beantworten.
+            </p>
+            <div class="bg-blue-50 p-4 rounded-lg mb-8 text-left inline-block">
+                <p class="font-semibold mb-2">Anleitung:</p>
+                <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                    <li>Bewerte jede Aussage auf einer Skala von 1 bis 5.</li>
+                    <li><strong>1</strong> = Trifft überhaupt nicht zu</li>
+                    <li><strong>5</strong> = Trifft voll und ganz zu</li>
+                    <li>Antworte ehrlich und spontan.</li>
+                </ul>
+            </div>
+            <br>
+            <button onclick="startTest()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                Test starten
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span id="progress-text">Frage 1 von X</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-xl shadow-md p-8 min-h-[300px] flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-purple-500"></div>
+                
+                <span id="category-badge" class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                    Kategorie
+                </span>
+
+                <h3 id="question-text" class="text-xl md:text-2xl font-medium text-gray-800 mb-8 text-center leading-relaxed">
+                    Frage lädt...
+                </h3>
+
+                <!-- Scale Labels -->
+                <div class="flex justify-between text-xs md:text-sm text-gray-500 mb-2 px-2">
+                    <span>Trifft nicht zu (1)</span>
+                    <span>Neutral (3)</span>
+                    <span>Trifft zu (5)</span>
+                </div>
+
+                <!-- Selection Buttons (1-5) -->
+                <div class="grid grid-cols-5 gap-2 md:gap-4 mb-6">
+                    <button onclick="selectOption(1)" class="option-btn bg-gray-50 hover:bg-red-100 border border-gray-200 hover:border-red-300 text-gray-700 font-bold py-3 rounded-lg transition">1</button>
+                    <button onclick="selectOption(2)" class="option-btn bg-gray-50 hover:bg-orange-100 border border-gray-200 hover:border-orange-300 text-gray-700 font-bold py-3 rounded-lg transition">2</button>
+                    <button onclick="selectOption(3)" class="option-btn bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 text-gray-700 font-bold py-3 rounded-lg transition">3</button>
+                    <button onclick="selectOption(4)" class="option-btn bg-gray-50 hover:bg-lime-100 border border-gray-200 hover:border-lime-300 text-gray-700 font-bold py-3 rounded-lg transition">4</button>
+                    <button onclick="selectOption(5)" class="option-btn bg-gray-50 hover:bg-green-100 border border-gray-200 hover:border-green-300 text-gray-700 font-bold py-3 rounded-lg transition">5</button>
+                </div>
+
+                <p class="text-center text-gray-400 text-sm italic mt-2">Wähle eine Zahl, um fortzufahren</p>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden">
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Dein Ergebnis</h2>
+                
+                <!-- Total Score Section -->
+                <div id="total-score-box" class="mb-8 p-6 bg-indigo-50 border-l-4 border-indigo-500 rounded-lg text-center">
+                    <h3 class="text-xl font-semibold text-indigo-700">Gesamtsumme aller Antworten</h3>
+                    <p class="text-4xl font-bold text-indigo-900 mt-2">
+                        <span id="total-score">0</span> / <span id="max-total-score">0</span>
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <!-- Chart Container -->
+                    <div class="w-full h-64">
+                        <canvas id="resultsChart"></canvas>
+                    </div>
+
+                    <!-- Text Summary -->
+                    <div id="summary-text" class="space-y-4">
+                        <!-- Details injected via JS -->
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded text-sm">
+                    <strong>Hinweis:</strong> Der Test enthält nun 102 Fragen (36 Fragen für O/C, 10 für E/A/N). Ein professionelles psychologisches Profil erfordert den vollständigen Test (36 Fragen pro Kategorie).
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="location.reload()" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-6 rounded-full transition shadow-md">
+                        Test neu starten
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 mt-8">
+        <div class="container mx-auto text-center text-sm">
+            &copy; 2023 Big Five Analyse Tool
+        </div>
+    </footer>
+
+    <script>
+        // ---------------- DATEN (Extrahiert aus dem PDF) ----------------
+        // 36 Fragen für Offenheit (O) und Gewissenhaftigkeit (C) sind vollständig enthalten.
+        // Für Extraversion (E), Verträglichkeit (A) und Neurotizismus (N) sind die ersten 10 Fragen enthalten.
+        
+        const categories = {
+            O: "Offenheit für neue Erfahrungen",
+            C: "Gewissenhaftigkeit",
+            E: "Extraversion",
+            A: "Verträglichkeit",
+            N: "Neurotizismus"
+        };
+        
+        const questions = [
+            // --- Offenheit (O) - 36 Fragen ---
+            { id: 1, cat: 'O', text: "Ich verliere mich oft in Tagträumen." },
+            { id: 2, cat: 'O', text: "Ich genieße Reisen in Fantasiewelten." },
+            { id: 3, cat: 'O', text: "Ich mag es, meinen Gedanken nachzuhängen." },
+            { id: 4, cat: 'O', text: "Ich gebe mich meiner Fantasie hin." },
+            { id: 5, cat: 'O', text: "Ich habe ein ausgesprochen lebhaftes Vorstellungsvermögen." },
+            { id: 6, cat: 'O', text: "Meine Fantasie hilft mir in vielen Lebenslagen." },
+            { id: 7, cat: 'O', text: "Ich halte Kunst für sehr wichtig." },
+            { id: 8, cat: 'O', text: "Ich habe einen ausgeprägten Sinn für Ästhetik." },
+            { id: 9, cat: 'O', text: "Ich kann Schönheit in Dingen erkennen, die andere nicht wahrnehmen." },
+            { id: 10, cat: 'O', text: "Kunstwerke berühren mich zutiefst." },
+            { id: 11, cat: 'O', text: "Ich begeistere mich für alles Schöne." },
+            { id: 12, cat: 'O', text: "Schöne Dinge haben einen besonderen Stellenwert in meinem Leben." },
+            { id: 13, cat: 'O', text: "Meine Gefühle erlebe ich sehr intensiv." },
+            { id: 14, cat: 'O', text: "Ich habe eine besonders gute Fähigkeit, die Gefühle anderer Menschen nachzuempfinden." },
+            { id: 15, cat: 'O', text: "Meine Gefühle lenken mein Denken und Handeln." },
+            { id: 16, cat: 'O', text: "Ich erlebe mehr emotionale Höhen und Tiefen als andere Menschen." },
+            { id: 17, cat: 'O', text: "Ich habe ein sehr feines Gespür für Stimmungen." },
+            { id: 18, cat: 'O', text: "Meine Gefühlswelt ist außergewöhnlich vielfältig." },
+            { id: 19, cat: 'O', text: "Ich probiere gerne Dinge aus, die ich noch nicht kenne." },
+            { id: 20, cat: 'O', text: "Veränderung ziehe ich der Routine vor." },
+            { id: 21, cat: 'O', text: "Ich suche die Abwechslung." },
+            { id: 22, cat: 'O', text: "Ich strebe nach neuen Erfahrungen." },
+            { id: 23, cat: 'O', text: "Neues ist mir lieber als Altbekanntes." },
+            { id: 24, cat: 'O', text: "Es ist mir wichtig, dass Vielfalt mein Leben prägt." },
+            { id: 25, cat: 'O', text: "Ich mag es, komplexe Problemstellungen zu bearbeiten." },
+            { id: 26, cat: 'O', text: "Ich interessiere mich für abstrakte Ideen." },
+            { id: 27, cat: 'O', text: "Ich beschäftige mich mit anspruchsvollen Inhalten." },
+            { id: 28, cat: 'O', text: "Ich setze mich gerne mit Theorien auseinander." },
+            { id: 29, cat: 'O', text: "Erkenntnisse aus fremden Wissensgebieten wecken meine Neugier." },
+            { id: 30, cat: 'O', text: "Ich befasse mich gerne mit neuartigen Ideen." },
+            { id: 31, cat: 'O', text: "Ich finde es wichtig, dass Kunstschaffende mit Steuergeldern gefördert werden." },
+            { id: 32, cat: 'O', text: "Ich bin der Meinung, dass Hilfe immer besser ist als Strafe." },
+            { id: 33, cat: 'O', text: "Ich hinterfrage jegliche Form von Autorität kritisch." },
+            { id: 34, cat: 'O', text: "Ich finde, dass Strafgefangene zu hart behandelt werden." },
+            { id: 35, cat: 'O', text: "Ich finde es richtig, dass sich Traditionen über die Zeit verändern." },
+            { id: 36, cat: 'O', text: "Ich stelle gesellschaftliche Normen häufig kritisch infrage." },
+
+            // --- Gewissenhaftigkeit (C) - 36 Fragen ---
+            { id: 37, cat: 'C', text: "Es gelingt mir schnell und einfach, Dinge zu verstehen." },
+            { id: 38, cat: 'C', text: "Ich bin geschickt darin, gute Lösungen zu finden." },
+            { id: 39, cat: 'C', text: "Ich schließe Aufgaben stets erfolgreich ab." },
+            { id: 40, cat: 'C', text: "Es fällt mir leicht, vernünftige Entscheidungen zu treffen." },
+            { id: 41, cat: 'C', text: "Ich fühle mich für zukünftige Herausforderungen gut gerüstet." },
+            { id: 42, cat: 'C', text: "Ich bin sicher, mein Leben erfolgreich meistern zu können." },
+            { id: 43, cat: 'C', text: "Ich achte stets darauf, Dinge an ihren Platz zurückzustellen." },
+            { id: 44, cat: 'C', text: "Ich mag es aufzuräumen." },
+            { id: 45, cat: 'C', text: "Ich kümmere mich mit großer Sorgfalt um mein Hab und Gut." },
+            { id: 46, cat: 'C', text: "Unordnung stört mich sehr." },
+            { id: 47, cat: 'C', text: "Ich erledige Dinge gerne in einer bestimmten Reihenfolge." },
+            { id: 48, cat: 'C', text: "Ich halte systematisch Ordnung." },
+            { id: 49, cat: 'C', text: "Ich bin absolut zuverlässig." },
+            { id: 50, cat: 'C', text: "Mein ausgeprägtes Pflichtbewusstsein leitet mich in allen Lebensbereichen." },
+            { id: 51, cat: 'C', text: "Ich handle streng nach meinen Prinzipien." },
+            { id: 52, cat: 'C', text: "Pünktlichkeit ist für mich das A und O." },
+            { id: 53, cat: 'C', text: "Ich setze alles daran, meinen Pflichten nachzukommen." },
+            { id: 54, cat: 'C', text: "Arbeit kommt bei mir vor dem Vergnügen." },
+            { id: 55, cat: 'C', text: "Ich gebe alles, um meine Ziele zu erreichen." },
+            { id: 56, cat: 'C', text: "Ich arbeite hart." },
+            { id: 57, cat: 'C', text: "Ich erledige meine Aufgaben mit hoher Einsatzbereitschaft." },
+            { id: 58, cat: 'C', text: "Ich will die Erwartungen stets übertreffen." },
+            { id: 59, cat: 'C', text: "Ehrgeizige Ziele beflügeln mich." },
+            { id: 60, cat: 'C', text: "Ich investiere viel Zeit und Anstrengung in meine Vorhaben." },
+            { id: 61, cat: 'C', text: "Wenn ich mit einer Aufgabe beginnen muss, lasse ich mich nicht ablenken." },
+            { id: 62, cat: 'C', text: "Dank meiner Willenskraft gelingt es mir leicht, Unlust zu überwinden." },
+            { id: 63, cat: 'C', text: "Ich bin sehr diszipliniert, wenn ich eine Aufgabe erledigen muss." },
+            { id: 64, cat: 'C', text: "Meine Vorsätze setze ich mühelos in Taten um." },
+            { id: 65, cat: 'C', text: "Langwierige Arbeiten erledige ich mit großer Ausdauer." },
+            { id: 66, cat: 'C', text: "Begonnene Vorhaben bringe ich trotz Durststrecken zu Ende." },
+            { id: 67, cat: 'C', text: "Bevor ich handle, bedenke ich mögliche Fehler." },
+            { id: 68, cat: 'C', text: "Ich wähle meine Worte sorgfältig aus." },
+            { id: 69, cat: 'C', text: "Ich überlege reiflich, bevor ich handle." },
+            { id: 70, cat: 'C', text: "Ich gehe Dinge stets mit Bedacht an." },
+            { id: 71, cat: 'C', text: "Meine Vorhaben denke ich jeweils gründlich durch." },
+            { id: 72, cat: 'C', text: "Ich nehme mir Zeit, um wohlüberlegte Entscheidungen zu treffen." },
+
+            // --- Extraversion (E) - Erste 10 Fragen ---
+            { id: 73, cat: 'E', text: "Es fällt mir leicht, Freundschaften zu schließen." },
+            { id: 74, cat: 'E', text: "Es ist für andere einfach, mich kennenzulernen." },
+            { id: 75, cat: 'E', text: "Es fällt mir leicht, auf andere zuzugehen." },
+            { id: 76, cat: 'E', text: "Ich mag es, mit anderen ins Gespräch zu kommen." },
+            { id: 77, cat: 'E', text: "Ich bin eine umgängliche Person." },
+            { id: 78, cat: 'E', text: "Ich habe eine freundliche Ausstrahlung." },
+            { id: 79, cat: 'E', text: "Ich bin ungern alleine." },
+            { id: 80, cat: 'E', text: "Ich mag Großanlässe." },
+            { id: 81, cat: 'E', text: "Ich habe das Bedürfnis, Teil einer Gruppe zu sein." },
+            { id: 82, cat: 'E', text: "Ich vermeide die Stille." },
+            
+            // --- Verträglichkeit (A) - Erste 10 Fragen ---
+            { id: 83, cat: 'A', text: "Ich habe das feste Vertrauen, dass mir andere Menschen wohlgesinnt sind." },
+            { id: 84, cat: 'A', text: "Ich bin gutgläubig." },
+            { id: 85, cat: 'A', text: "Ich gehe immer davon aus, dass andere Menschen gute Absichten verfolgen." },
+            { id: 86, cat: 'A', text: "Ich glaube fest an das Gute im Menschen." },
+            { id: 87, cat: 'A', text: "Ich halte Menschen grundsätzlich für ehrlich." },
+            { id: 88, cat: 'A', text: "Ich gehe davon aus, dass sich andere Menschen fair verhalten." },
+            { id: 89, cat: 'A', text: "Nie würde ich andere Menschen zum eigenen Vorteil beeinflussen." },
+            { id: 90, cat: 'A', text: "Im Wettbewerb mit anderen halte ich mich streng an die Regeln." },
+            { id: 91, cat: 'A', text: "Ich spiele immer mit offenen Karten." },
+            { id: 92, cat: 'A', text: "Ich bin ehrlich, selbst wenn ich mir dadurch einen Nachteil verschaffe." },
+
+            // --- Neurotizismus (N) - Erste 10 Fragen ---
+            { id: 93, cat: 'N', text: "Ich mache mir schnell Sorgen." },
+            { id: 94, cat: 'N', text: "Ich spüre meist eine gewisse Anspannung in mir." },
+            { id: 95, cat: 'N', text: "Ich mache mir oft Gedanken über Dinge, die möglicherweise schieflaufen könnten." },
+            { id: 96, cat: 'N', text: "Ich lasse mich von Ereignissen leicht beunruhigen." },
+            { id: 97, cat: 'N', text: "Ich fürchte mich vor vielen Dingen." },
+            { id: 98, cat: 'N', text: "Ich bin oft nervös" },
+            { id: 99, cat: 'N', text: "Ich verspüre oft starke Wut." },
+            { id: 100, cat: 'N', text: "Ich werde schnell ärgerlich." },
+            { id: 101, cat: 'N', text: "Man kann mich leicht kränken." },
+            { id: 102, cat: 'N', text: "Ich bin leicht zu reizen." }
+        ];
+
+        // Utility: Speichert die Anzahl der Fragen pro Kategorie
+        const categoryInfo = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+        questions.forEach(q => categoryInfo[q.cat]++);
+
+        // State
+        let currentQuestionIndex = 0;
+        let scores = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+        let answers = [];
+
+        // DOM Elements
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const questionText = document.getElementById('question-text');
+        const categoryBadge = document.getElementById('category-badge');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const totalScoreElement = document.getElementById('total-score');
+        const maxTotalScoreElement = document.getElementById('max-total-score');
+
+        // --- Logic ---
+
+        function startTest() {
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Alle Option-Buttons zurücksetzen, um die visuelle Auswahl zu entfernen
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'scale-105');
+                btn.classList.add('bg-gray-50', 'text-gray-700');
+            });
+
+
+            const q = questions[currentQuestionIndex];
+            questionText.innerText = q.text;
+            categoryBadge.innerText = categories[q.cat];
+            
+            // Update Progress
+            const totalQuestions = questions.length;
+            const percent = Math.round((currentQuestionIndex / totalQuestions) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressPercent.innerText = `${percent}%`;
+            progressText.innerText = `Frage ${currentQuestionIndex + 1} von ${totalQuestions}`;
+        }
+
+        function selectOption(value) {
+             // Visual Feedback (optional, but good UX)
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach((btn, index) => {
+                const btnValue = index + 1;
+                btn.classList.remove('bg-indigo-600', 'text-white', 'scale-105');
+                btn.classList.add('bg-gray-50', 'text-gray-700');
+                if (btnValue === value) {
+                    btn.classList.remove('bg-gray-50', 'text-gray-700');
+                    btn.classList.add('bg-indigo-600', 'text-white', 'scale-105');
+                }
+            });
+
+            // Delay the transition to allow visual feedback
+            setTimeout(() => {
+                // Save answer
+                const q = questions[currentQuestionIndex];
+                scores[q.cat] += value;
+                answers.push({ id: q.id, value: value });
+
+                // Next question or Finish
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 200); // 200ms delay for visual effect
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            // Calculate Total Score
+            let totalScore = 0;
+            let maxTotalScore = 0;
+            Object.keys(scores).forEach(key => {
+                totalScore += scores[key];
+                maxTotalScore += categoryInfo[key] * 5; // Max score is number of questions * 5
+            });
+
+            totalScoreElement.innerText = totalScore;
+            maxTotalScoreElement.innerText = maxTotalScore;
+
+
+            // Render Chart
+            renderChart(maxTotalScore);
+            
+            // Render Summary Text
+            const summaryDiv = document.getElementById('summary-text');
+            summaryDiv.innerHTML = '';
+            
+            Object.keys(categories).forEach(key => {
+                const score = scores[key];
+                const maxScore = categoryInfo[key] * 5; 
+                
+                // Avoid division by zero if somehow a category has 0 questions
+                const percent = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+                
+                let intensity = "Niedrig";
+                let colorClass = "text-red-600";
+                if(percent > 40) { intensity = "Mittel"; colorClass = "text-yellow-600"; }
+                if(percent > 70) { intensity = "Hoch"; colorClass = "text-green-600"; }
+
+                summaryDiv.innerHTML += `
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <div>
+                            <span class="font-bold text-gray-700 block">${categories[key]}</span>
+                            <span class="text-xs text-gray-500">Summe: ${score} / ${maxScore} (${categoryInfo[key]} Fragen)</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-lg ${colorClass}">${percent}%</span>
+                            <span class="block text-xs text-gray-400">${intensity}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            
+            // Data preparation
+            const dataValues = [scores.O, scores.C, scores.E, scores.A, scores.N];
+            const maxScores = [
+                categoryInfo.O * 5, 
+                categoryInfo.C * 5, 
+                categoryInfo.E * 5, 
+                categoryInfo.A * 5, 
+                categoryInfo.N * 5
+            ];
+
+            // The scale needs the highest possible max score from all categories
+            const suggestedMax = Math.max(...maxScores);
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Offenheit', 'Gewissenhaftigkeit', 'Extraversion', 'Verträglichkeit', 'Neurotizismus'],
+                    datasets: [{
+                        label: 'Deine Persönlichkeit',
+                        data: dataValues,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(79, 70, 229, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: { borderWidth: 3 }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: suggestedMax,
+                            ticks: { stepSize: 20 } // Step size adjusted for larger range
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
