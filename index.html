@@ -12,25 +12,13 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Hintergrund klar */
-        .bg-clear {
-            background-image: url('IMG_6641.jpg'); /* <- HIER DEIN BILD */
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
-        /* Hintergrund blur */
-        .bg-blur {
-            background-image: url('IMG_6641.jpg'); /* <- HIER DEIN BILD */
+        /* Blur-Hintergrund aktiv */
+        #backgroundWrapper {
+            background-image: url('DEINBILD.jpg'); /* <-- HIER DEIN BILD */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             filter: blur(6px) brightness(0.65);
-        }
-
-        /* Hintergrund Wrapper */
-        #backgroundWrapper {
             position: fixed;
             inset: 0;
             z-index: -1;
@@ -64,18 +52,17 @@
             }
         }
 
-        /* Cards schöner */
+        /* Card Style */
         .card {
             background: rgba(255,255,255,0.82);
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.18);
         }
 
-        /* Buttons smoother */
+        /* Buttons */
         .btn-green {
             background: linear-gradient(135deg, #22c55e, #16a34a);
         }
-
         .btn-green:hover {
             background: linear-gradient(135deg, #16a34a, #15803d);
         }
@@ -83,7 +70,6 @@
         .btn-yellow {
             background: linear-gradient(135deg, #facc15, #eab308);
         }
-
         .btn-yellow:hover {
             background: linear-gradient(135deg, #eab308, #ca8a04);
         }
@@ -91,50 +77,26 @@
         .btn-red {
             background: linear-gradient(135deg, #ef4444, #dc2626);
         }
-
         .btn-red:hover {
             background: linear-gradient(135deg, #dc2626, #b91c1c);
         }
     </style>
-
-    <script>
-        let mode = 0;
-
-        function toggleBackground() {
-            mode = (mode + 1) % 2;
-            const bg = document.getElementById("backgroundWrapper");
-
-            if (mode === 0) {
-                bg.classList.remove("bg-blur");
-                bg.classList.add("bg-clear");
-            } else {
-                bg.classList.remove("bg-clear");
-                bg.classList.add("bg-blur");
-            }
-        }
-    </script>
 </head>
 
 <body class="min-h-screen flex flex-col">
 
-<!-- Hintergrund -->
-<div id="backgroundWrapper" class="bg-clear"></div>
+<!-- Nur Blur Hintergrund -->
+<div id="backgroundWrapper"></div>
 
 <header class="bg-green-600 text-white p-4 shadow-lg text-center text-xl font-bold relative">
     RANEEM
-
-    <!-- Hintergrund wechseln -->
-    <button onclick="toggleBackground()" 
-        class="absolute right-4 top-4 bg-black bg-opacity-40 text-white px-3 py-1 rounded-lg text-sm hover:bg-opacity-60">
-        Hintergrund wechseln
-    </button>
 </header>
 
 <main class="flex-grow container mx-auto p-4 max-w-2xl">
 
     <!-- Intro -->
     <div id="intro" class="card p-8 rounded-xl shadow text-center mt-8 fade-in">
-        <h2 class="text-3xl font-bold text-green-600 mb-4">Bist du  bereit?</h2>
+        <h2 class="text-3xl font-bold text-green-600 mb-4">Seid ihr bereit?</h2>
         <p class="text-gray-700 mb-6">Beantwortet gemeinsam 30 Fragen mit „Trifft zu“, „Neutral“ oder „Trifft nicht zu“.</p>
         <button onclick="startGame()" class="btn-green text-white font-bold py-3 px-8 rounded-full shadow">
             Los geht's!
@@ -143,7 +105,6 @@
 
     <!-- Quiz -->
     <div id="quiz" class="hidden card p-8 rounded-xl shadow mt-8">
-        <!-- Progress -->
         <div class="mb-4">
             <div class="flex justify-between text-xs text-gray-600 mb-1">
                 <span id="progress-text"></span>
@@ -154,18 +115,15 @@
             </div>
         </div>
 
-        <!-- Question -->
         <h2 id="question" class="text-xl font-semibold text-center mb-8 fade-in"></h2>
 
         <div class="grid grid-cols-3 gap-4">
             <button onclick="answer(1)" class="btn-green text-white py-3 rounded-lg font-bold">
                 Trifft zu
             </button>
-
             <button onclick="answer(0.5)" class="btn-yellow text-white py-3 rounded-lg font-bold">
                 Neutral
             </button>
-
             <button onclick="answer(0)" class="btn-red text-white py-3 rounded-lg font-bold">
                 Trifft nicht zu
             </button>
